@@ -27,15 +27,15 @@ class CommandOnSave(sublime_plugin.EventListener):
         if not nice_setup_file:
             debug("No .nicesetup file found in parent dirs")
             return
-        debug("Found {nice_setup_file}".format(**locals()))
+        debug("Found %s" % nice_setup_file)
         local_dir = os.path.dirname(nice_setup_file)
         with open(nice_setup_file) as f:
-            remote_location = f.read().strip()
-        debug("Sync location {remote_location}".format(**locals()))
-
-        cmd = ['rsync', '-av', '--delete', local_dir, remote_location]
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        for line in p.stdout:
-            debug(line.rstrip('\n'))
-        p.wait()
+            for line in f:
+                remote_location = line.strip()
+                debug("Uploading to %s" % remote_location)
+                cmd = ['rsync', '-av', '--delete', local_dir, remote_location]
+                p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                for line in p.stdout:
+                    debug(line.rstrip('\n'))
+                p.wait()
         print
