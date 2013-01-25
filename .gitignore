@@ -1,0 +1,4 @@
+*.pyc
+*~
+.nicesetup
+.DS_Store
