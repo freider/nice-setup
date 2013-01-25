@@ -6,6 +6,11 @@ import sys
 
 print "Loading NiceSetup™"
 
+EXCLUDE_PATTERNS = [
+    '*~',
+    '.DS_Store',
+    '.nicesetup'
+]
 
 def debug(message):
     print >> sys.stderr, "NiceSetup:", message
@@ -13,8 +18,6 @@ def debug(message):
 
 class CommandOnSave(sublime_plugin.EventListener):
     def on_post_save(self, view):
-#        settings = view.settings()
-#        folders = settings.get("commands")
         print
         test_dir = view.file_name()
         nice_setup_file = None
@@ -33,7 +36,11 @@ class CommandOnSave(sublime_plugin.EventListener):
             for line in f:
                 remote_location = line.strip()
                 debug("Uploading to %s" % remote_location)
-                cmd = ['rsync', '-av', '--delete', local_dir, remote_location]
+                cmd = ['rsync', '-av', '--delete']
+                for pattern in EXCLUDE_PATTERNS:
+                    cmd += ['--exclude', pattern]
+                cmd += [local_dir, remote_location]
+                debug('%r' % cmd)
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 for line in p.stdout:
                     debug(line.rstrip('\n'))
